@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """heard — speech-to-text via anonymous web service. No local models."""
 
+import base64, sys, json, tempfile, subprocess, os
+
 # Upstream voice endpoint (anonymous tier). Subject to upstream availability.
 UPSTREAM_URL = os.environ.get("HEARD_UPSTREAM_URL", "https://chatgpt.com")
-import base64, sys, json, tempfile, subprocess, os
+
 
 def wav_to_mp3(wav_path):
     mp3 = tempfile.mktemp(suffix=".mp3")
