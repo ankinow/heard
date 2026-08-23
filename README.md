@@ -21,3 +21,13 @@ Anonymous tier ≈ 3 transcriptions/min. Error surfaces via desktop notification
 
 ## License
 MIT
+
+## Hermes Agent integration
+`heard` works as Hermes Agent's system-wide STT provider:
+```bash
+# ~/.hermes/.env
+HERMES_LOCAL_STT_COMMAND=/path/to/heard-stt-adapter {input_path} {model} {output_dir} {language}
+# config.yaml
+stt: { enabled: true, provider: local_command, language: pt }
+```
+All Hermes voice messages (Telegram, WhatsApp, gateway, CLI /voice) transcribe via heard.

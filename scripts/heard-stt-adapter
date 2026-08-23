@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# heard adapter p/ HERMES_LOCAL_STT_COMMAND — {input_path} {model} {output_dir} {language}
+set -u
+IN="$1"; OUT_DIR="$3"  # args posicionais do template
+LANG_="${4:-pt}"
+TEXT=$(python3 /mnt/projetos/Projetos/repos/heard/lib/heard.py "$IN" "$LANG_" 2>>/tmp/heard-stt.log) || {
+  echo "HEARD_ERROR" >&2; exit 1; }
+printf '%s' "$TEXT" > "$OUT_DIR/transcription.txt"
