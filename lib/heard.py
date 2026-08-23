@@ -4,7 +4,7 @@
 import base64, sys, json, tempfile, subprocess, os
 
 # Upstream voice endpoint (anonymous tier). Subject to upstream availability.
-UPSTREAM_URL = os.environ.get("HEARD_UPSTREAM_URL", "https://chatgpt.com")
+DEFAULT_UPSTREAM_URL = "https://chatgpt.com"
 
 
 def wav_to_mp3(wav_path):
@@ -16,6 +16,7 @@ def wav_to_mp3(wav_path):
 
 def transcribe(audio_path, lang="pt"):
     """Opens stealth browser, gets anonymous session, POSTs audio. Returns text or raises."""
+    upstream = os.environ.get("HEARD_UPSTREAM_URL", DEFAULT_UPSTREAM_URL)
     from playwright.sync_api import sync_playwright
     if audio_path.endswith(".wav"):
         up, mime, name = wav_to_mp3(audio_path)
@@ -27,7 +28,7 @@ def transcribe(audio_path, lang="pt"):
         ctx = b.new_context(locale="pt-BR",
             user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
         pg = ctx.new_page()
-        pg.goto(UPSTREAM_URL, wait_until="domcontentloaded", timeout=60000)
+        pg.goto(upstream, wait_until="domcontentloaded", timeout=60000)
         pg.wait_for_timeout(6000)
         result = pg.evaluate("""async ([b64, mime, name, lang]) => {
             const bin = atob(b64); const arr = new Uint8Array(bin.length);
