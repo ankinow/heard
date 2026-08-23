@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# heard — ditado toggle (F8): grava mic -> transcribe anônimo -> cola na janela focada
+# heard — ditado toggle: grava mic -> transcribe anônimo -> cola na janela focada
 set -u
 STATE=/tmp/heard-dictate.pid
 WAV=/tmp/heard-voice.wav
-LIB="$(dirname "$(readlink -f "$0")")/../lib/heard.py"
+LIB="/mnt/projetos/Projetos/repos/heard/lib/heard.py"
 
 paste() {
   local old; old=$(wl-paste 2>/dev/null || true)
