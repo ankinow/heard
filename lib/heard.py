@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""heard v2.1 — anonymous STT with subprocess session-pool.
+"""heard v2.2 — anonymous STT with subprocess session-pool.
 
 Rate-limit empiria (2026-08-23): key = session cookie, not IP.
 ~1 transcription/min per session; fresh session = fresh quota.
 Pool of worker subprocesses rotates sessions; each worker handles
 N requests then is recycled. No threads touching Playwright greenlets.
+
+v2.2: HEARD_WORKER_SCRIPT env override — aponta o pool para outro script
+de worker (mesmo protocolo stdin/stdout). Usado pelos testes unitários
+(fake worker sem playwright/rede) e por quem quiser trocar o upstream.
 """
 import base64
 import json
@@ -20,13 +24,20 @@ UPSTREAM_URL = os.environ.get("HEARD_UPSTREAM_URL", "https://chatgpt.com")
 POOL_SIZE = int(os.environ.get("HEARD_POOL", "3"))
 REQUESTS_PER_SESSION = 4  # reciclar antes do limite ~1/min? não: quota é por tempo.
 # Empiria: limite temporal por sessão (~60s). Pool dá N sessões => N ditados/min.
-WORKER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "heard_worker.py")
+
+
+def _worker_script() -> str:
+    """Caminho do worker resolvido em tempo de uso (permite override em runtime)."""
+    return os.environ.get(
+        "HEARD_WORKER_SCRIPT",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "heard_worker.py"),
+    )
 
 
 class Worker:
     def __init__(self, lang="pt"):
         self.proc = subprocess.Popen(
-            [sys.executable, WORKER, lang],
+            [sys.executable, _worker_script(), lang],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             text=True, bufsize=1)
         ready = self.proc.stdout.readline()  # consome {"ready": true}

@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system deps
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install pytest
+        run: pip install pytest
+
+      # Unit tests não precisam de playwright: os testes de transcribe usam um
+      # fake worker (protocolo stdin/stdout) via HEARD_WORKER_SCRIPT.
+      - name: Run unit tests
+        run: python -m pytest tests/ -q
+        env:
+          HEARD_INTEGRATION: ""  # integration test é opt-in, nunca roda no CI
