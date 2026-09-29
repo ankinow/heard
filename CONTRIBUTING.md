@@ -34,8 +34,8 @@ Prefer the existing fake-worker pattern in `tests/test_heard.py`. Set `HEARD_WOR
 The integration test contacts the configured upstream and needs Playwright plus its Chromium build. It is excluded from normal CI and the default test run. Run it only when you are authorized to use the endpoint and have confirmed its current terms and rate limits:
 
 ```bash
-playwright install chromium
-HEARD_INTEGRATION=1 python -m pytest tests/ -q -k integration
+uv run --with pytest --with playwright playwright install chromium
+HEARD_INTEGRATION=1 uv run --with pytest --with playwright python -m pytest tests/ -q -k integration
 ```
 
 Do not add session cookies, credentials, recordings, or other private data to the repository, fixtures, logs, or test output. Do not make the live integration test a required CI check.
