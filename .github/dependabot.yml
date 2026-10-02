@@ -1,10 +1,25 @@
 version: 2
 updates:
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
+  # NÃO declarar `package-ecosystem: "pip"` aqui.
+  #
+  # Este repositório não possui manifesto pip — nem requirements.txt, nem
+  # pyproject.toml, nem setup.py, nem setup.cfg, nem Pipfile (verificado em
+  # d192e08). Depender de um ecossistema sem manifesto faz o updater abortar com
+  # `dependency_file_not_found` toda semana: runs 1582154871 (18/set) e
+  # 36164989305 (25/set) falharam com exatamente esse erro, e o job `pip` é o
+  # único que nunca produz PR — enquanto `github_actions` funciona.
+  #
+  # O modelo de dependências do heard é de ferramentas de SISTEMA, geridas pelo
+  # pacote da distro (pacman), não por um manifesto pip versionado:
+  #   - runtime: python, playwright, ydotool, wl-clipboard, ffmpeg, pipewire,
+  #     libnotify → ver README §Requirements / §Installation (Arch)
+  #   - chromium: `playwright install chromium` (build do próprio playwright)
+  #   - CI/teste: pytest e playwright são efêmeros via `uv run --with`
+  #     (ver CONTRIBUTING.md), e o CI faz `pip install pytest` direto.
+  #
+  # Se um dia este projeto passar a ter um manifesto pip versionado, declare o
+  # ecossistema "pip" NESTE arquivo no mesmo commit que adiciona o manifesto.
+  # Declarar antes do manifesto é o que produz a falha semanal.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
